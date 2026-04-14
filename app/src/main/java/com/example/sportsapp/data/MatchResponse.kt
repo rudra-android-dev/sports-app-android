@@ -5,6 +5,6 @@ data class MatchResponse(
 )
 
 data class Match(
-    val strEvent: String,
-    val dateEvent: String
+    val strEvent: String?,
+    val dateEvent: String?
 )

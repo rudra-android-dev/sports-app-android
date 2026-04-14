@@ -12,6 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.sportsapp.ui.theme.SportsAppTheme
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import android.util.Log
+import com.example.sportsapp.network.RetrofitInstance
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,28 +24,29 @@ class MainActivity : ComponentActivity() {
         setContent {
             SportsAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    Text(
+                        text = "Loading...",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
-    }
-}
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitInstance.api.getMatches()
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+                if (response.isSuccessful) {
+                    val data = response.body()
+                    data?.events?.forEach {
+                        Log.d("MATCH", "${it.strEvent} - ${it.dateEvent}")
+                    }
+                } else {
+                    Log.e("API_ERROR", response.code().toString())
+                }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SportsAppTheme {
-        Greeting("Android")
+            } catch (e: Exception) {
+                Log.e("API_EXCEPTION", e.message.toString())
+            }
+        }
     }
 }
