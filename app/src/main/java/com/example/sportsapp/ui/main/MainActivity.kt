@@ -58,34 +58,23 @@ class MainActivity : ComponentActivity() {
             SportsAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     if (isLoading) {
-                        Text("Loading...")
+                        Text(
+                            "Loading...",
+                            modifier = Modifier.padding(innerPadding)
+                        )
                     } else if (matches.isEmpty()) {
-                        Text("No matches available")
+                        Text(
+                            "No matches available",
+                            modifier = Modifier.padding(innerPadding)
+                        )
                     } else {
-                        LazyColumn {
+                        LazyColumn(modifier = Modifier.padding(innerPadding)) {
                             items(matches) { match ->
                                 MatchItem(match)
                             }
                         }
                     }
                 }
-            }
-        }
-        lifecycleScope.launch {
-            try {
-                val response = RetrofitInstance.api.getMatches()
-
-                if (response.isSuccessful) {
-                    val data = response.body()
-                    data?.events?.forEach {
-                        Log.d("MATCH", "${it.strEvent} - ${it.dateEvent}")
-                    }
-                } else {
-                    Log.e("API_ERROR", response.code().toString())
-                }
-
-            } catch (e: Exception) {
-                Log.e("API_EXCEPTION", e.message.toString())
             }
         }
     }
