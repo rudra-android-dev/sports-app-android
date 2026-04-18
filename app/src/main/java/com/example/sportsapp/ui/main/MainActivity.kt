@@ -15,6 +15,12 @@ import com.example.sportsapp.ui.theme.SportsAppTheme
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.sportsapp.data.Match
 import com.example.sportsapp.network.RetrofitInstance
 
 class MainActivity : ComponentActivity() {
@@ -22,6 +28,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            var matches by remember { mutableStateOf<List<Match>>(emptyList()) }
+            var isLoading by remember { mutableStateOf(true) }
+
+            LaunchedEffect(Unit) {
+                try {
+                    val response = RetrofitInstance.api.getMatches()
+
+                    if (response.isSuccessful) {
+                        matches = response.body()?.events ?: emptyList()
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("API_ERROR", e.message.toString())
+                } finally {
+                    isLoading = false
+                }
+            }
+
+
             SportsAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Text(
