@@ -28,52 +28,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.example.sportsapp.data.Match
 import com.example.sportsapp.network.RetrofitInstance
+import androidx.navigation.compose.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            var matches by remember { mutableStateOf<List<Match>>(emptyList()) }
-            var isLoading by remember { mutableStateOf(true) }
+            val navController = rememberNavController()
 
-            LaunchedEffect(Unit) {
-                try {
-                    val response = RetrofitInstance.api.getMatches()
+            NavHost(
+                navController = navController,
+                startDestination = "home"
+            ) {
 
-                    if (response.isSuccessful) {
-                        matches = response.body()?.events ?: emptyList()
-                    }
-
-                } catch (e: Exception) {
-                    Log.e("API_ERROR", e.message.toString())
-                } finally {
-                    isLoading = false
+                composable("home") {
+                    MatchListScreen(navController)
                 }
-            }
 
-
-            SportsAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    if (isLoading) {
-                        Text(
-                            "Loading...",
-                            modifier = Modifier.padding(innerPadding)
-                        )
-                    } else if (matches.isEmpty()) {
-                        Text(
-                            "No matches available",
-                            modifier = Modifier.padding(innerPadding)
-                        )
-                    } else {
-                        LazyColumn(modifier = Modifier.padding(innerPadding)) {
-                            items(matches) { match ->
-                                MatchItem(match)
-                            }
-                        }
-                    }
+                composable("details/{match}") { backStackEntry ->
+                    val match = backStackEntry.arguments?.getString("match")
+                    MatchDetailScreen(match)
                 }
             }
         }
