@@ -33,6 +33,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.sportsapp.data.Match
 import com.example.sportsapp.network.RetrofitInstance
 import androidx.navigation.compose.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.sportsapp.viewmodel.MatchViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +42,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+            val viewModel: MatchViewModel = viewModel()
 
             NavHost(
                 navController = navController,
@@ -47,12 +50,12 @@ class MainActivity : ComponentActivity() {
             ) {
 
                 composable("home") {
-                    MatchListScreen(navController)
+                    MatchListScreen(navController, viewModel)
                 }
 
-                composable("details/{match}") { backStackEntry ->
+                composable("details") { backStackEntry ->
                     val match = backStackEntry.arguments?.getString("match")
-                    MatchDetailScreen(match)
+                    MatchDetailScreen(viewModel)
                 }
             }
         }

@@ -7,11 +7,15 @@ import androidx.navigation.NavController
 import android.util.Log
 import com.example.sportsapp.data.Match
 import com.example.sportsapp.network.RetrofitInstance
+import com.example.sportsapp.viewmodel.MatchViewModel
 
 @Composable
-fun MatchListScreen(navController: NavController) {
+fun MatchListScreen(
+    navController: NavController,
+    viewModel: MatchViewModel
+) {
 
-    var matches by remember { mutableStateOf<List<Match>>(emptyList()) }
+    val matches = viewModel.matches.value
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
@@ -19,7 +23,7 @@ fun MatchListScreen(navController: NavController) {
             val response = RetrofitInstance.api.getMatches()
 
             if (response.isSuccessful) {
-                matches = response.body()?.events ?: emptyList()
+                viewModel.matches.value = response.body()?.events ?: emptyList()
             }
 
         } catch (e: Exception) {
@@ -37,7 +41,8 @@ fun MatchListScreen(navController: NavController) {
         LazyColumn {
             items(matches) { match ->
                 MatchItem(match) {
-                    navController.navigate("details/${match.strEvent ?: ""}")
+                    viewModel.selectMatch(match)
+                    navController.navigate("details")
                 }
             }
         }
