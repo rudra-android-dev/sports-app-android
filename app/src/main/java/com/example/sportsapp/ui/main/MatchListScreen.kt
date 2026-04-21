@@ -8,6 +8,10 @@ import android.util.Log
 import com.example.sportsapp.data.Match
 import com.example.sportsapp.network.RetrofitInstance
 import com.example.sportsapp.viewmodel.MatchViewModel
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.Alignment
+import androidx.compose.material3.CircularProgressIndicator
+import com.google.accompanist.swiperefresh.*
 
 @Composable
 fun MatchListScreen(
@@ -19,18 +23,7 @@ fun MatchListScreen(
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        try {
-            val response = RetrofitInstance.api.getMatches()
-
-            if (response.isSuccessful) {
-                viewModel.matches.value = response.body()?.events ?: emptyList()
-            }
-
-        } catch (e: Exception) {
-            Log.e("API_ERROR", e.message.toString())
-        } finally {
-            isLoading = false
-        }
+        viewModel.fetchMatches()
     }
 
     if (isLoading) {
@@ -38,13 +31,43 @@ fun MatchListScreen(
     } else if (matches.isEmpty()) {
         Text("No matches available")
     } else {
-        LazyColumn {
-            items(matches) { match ->
-                MatchItem(match) {
-                    viewModel.selectMatch(match)
-                    navController.navigate("details")
+        if (viewModel.isLoading.value) {
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+
+        } else if (viewModel.errorMessage.value != null) {
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = viewModel.errorMessage.value ?: "",
+                    color = Color.Red
+                )
+            }
+
+        } else {
+
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(viewModel.isLoading.value),
+                onRefresh = { viewModel.fetchMatches() }
+            ) {
+                LazyColumn {
+                    items(viewModel.matches.value) { match ->
+                        MatchItem(match) {
+                            viewModel.selectMatch(match)
+                            navController.navigate("details")
+                        }
+                    }
                 }
             }
+
         }
     }
 }
