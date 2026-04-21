@@ -22,17 +22,11 @@ fun MatchListScreen(
 ) {
 
     val matches = viewModel.matches.value
-    var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         viewModel.fetchMatches()
     }
 
-    if (isLoading) {
-        Text("Loading...")
-    } else if (matches.isEmpty()) {
-        Text("No matches available")
-    } else {
         if (viewModel.isLoading.value) {
 
             Box(
@@ -72,4 +66,3 @@ fun MatchListScreen(
 
         }
     }
-}
