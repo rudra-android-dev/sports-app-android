@@ -44,6 +44,7 @@ import androidx.navigation.compose.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.sportsapp.viewmodel.MatchViewModel
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,9 +79,9 @@ fun MatchItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(4.dp)
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(6.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
