@@ -16,8 +16,12 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -74,13 +78,25 @@ fun MatchItem(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = match.strEvent ?: "No Title",
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = match.dateEvent ?: "No Date"
-            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                Text(match.strHomeTeam ?: "Team A")
+
+                Text(
+                    text = "VS",
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(match.strAwayTeam ?: "Team B")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(match.dateEvent ?: "")
         }
     }
 }
