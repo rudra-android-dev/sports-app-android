@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.*
 
 @Composable
@@ -20,12 +21,29 @@ fun MatchListScreen(
     navController: NavController,
     viewModel: MatchViewModel
 ) {
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredMatches = viewModel.matches.value.filter {
+        it.strEvent?.contains(searchQuery, ignoreCase = true) == true
+    }
 
     val matches = viewModel.matches.value
 
     LaunchedEffect(Unit) {
         viewModel.fetchMatches()
     }
+
+
+    Column {
+
+        TextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            placeholder = { Text("Search matches...") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        )
 
         if (viewModel.isLoading.value) {
 
@@ -55,7 +73,7 @@ fun MatchListScreen(
                 onRefresh = { viewModel.fetchMatches() }
             ) {
                 LazyColumn {
-                    items(viewModel.matches.value) { match ->
+                    items(filteredMatches) { match ->
                         MatchItem(match) {
                             viewModel.selectMatch(match)
                             navController.navigate("details")
@@ -66,3 +84,5 @@ fun MatchListScreen(
 
         }
     }
+    }
+
