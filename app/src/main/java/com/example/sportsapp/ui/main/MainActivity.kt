@@ -45,6 +45,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.sportsapp.viewmodel.MatchViewModel
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarBorder
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,10 +81,13 @@ fun MatchItem(
     match: Match,
     onClick: () -> Unit
 ) {
+    var isFavorite by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 6.dp),
+            .padding(horizontal = 8.dp, vertical = 6.dp)
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp)
     ) {
@@ -121,6 +129,22 @@ fun MatchItem(
                         contentDescription = null,
                         modifier = Modifier.size(40.dp)
                     )
+                }
+                IconButton(
+                    onClick = { isFavorite = !isFavorite }
+                ) {
+                    if (isFavorite) {
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = "Favorite",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.StarBorder,
+                            contentDescription = "Not Favorite"
+                        )
+                    }
                 }
             }
 
