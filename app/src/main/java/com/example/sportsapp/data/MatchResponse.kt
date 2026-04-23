@@ -5,6 +5,7 @@ data class MatchResponse(
 )
 
 data class Match(
+    val idEvent: String?,
     val strEvent: String?,
     val dateEvent: String?,
     val strHomeTeam: String?,
