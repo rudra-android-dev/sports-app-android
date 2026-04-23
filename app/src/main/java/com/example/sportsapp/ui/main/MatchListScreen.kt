@@ -45,6 +45,14 @@ fun MatchListScreen(
                 .padding(8.dp)
         )
 
+        Button(
+            onClick = {
+                navController.navigate("favorites")
+            }
+        ) {
+            Text("Favorites")
+        }
+
         if (viewModel.isLoading.value) {
 
             Box(

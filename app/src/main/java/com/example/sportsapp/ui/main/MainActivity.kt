@@ -72,6 +72,9 @@ class MainActivity : ComponentActivity() {
                     val match = backStackEntry.arguments?.getString("match")
                     MatchDetailScreen(viewModel)
                 }
+                composable("favorites") {
+                    FavoritesScreen()
+                }
             }
         }
     }
