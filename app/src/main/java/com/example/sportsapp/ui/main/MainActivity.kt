@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
                     MatchDetailScreen(viewModel)
                 }
                 composable("favorites") {
-                    FavoritesScreen()
+                    FavoritesScreen(navController, viewModel)
                 }
             }
         }
@@ -82,9 +82,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MatchItem(
     match: Match,
+    isFavorite: Boolean,
+    onFavoriteClick: () -> Unit,
     onClick: () -> Unit
 ) {
-    var isFavorite by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -134,7 +135,9 @@ fun MatchItem(
                     )
                 }
                 IconButton(
-                    onClick = { isFavorite = !isFavorite }
+                    onClick = {
+                        onFavoriteClick()
+                    }
                 ) {
                     if (isFavorite) {
                         Icon(

@@ -9,6 +9,8 @@ import com.example.sportsapp.network.RetrofitInstance
 
 class MatchViewModel : ViewModel() {
 
+    var favorites = mutableStateOf<Set<String>>(emptySet())
+
     var matches = mutableStateOf<List<Match>>(emptyList())
 
     var selectedMatch = mutableStateOf<Match?>(null)
@@ -19,6 +21,22 @@ class MatchViewModel : ViewModel() {
 
     fun selectMatch(match: Match) {
         selectedMatch.value = match
+    }
+
+    fun toggleFavorite(match: Match) {
+
+        val id = match.idEvent ?: return
+
+        favorites.value =
+            if (favorites.value.contains(id)) {
+                favorites.value - id
+            } else {
+                favorites.value + id
+            }
+    }
+
+    fun isFavorite(match: Match): Boolean {
+        return favorites.value.contains(match.idEvent)
     }
 
     fun fetchMatches() {

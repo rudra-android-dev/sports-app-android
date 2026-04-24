@@ -82,10 +82,17 @@ fun MatchListScreen(
             ) {
                 LazyColumn {
                     items(filteredMatches) { match ->
-                        MatchItem(match) {
-                            viewModel.selectMatch(match)
-                            navController.navigate("details")
-                        }
+                        MatchItem(
+                            match = match,
+                            isFavorite = viewModel.isFavorite(match),
+                            onFavoriteClick = {
+                                viewModel.toggleFavorite(match)
+                            },
+                            onClick = {
+                                viewModel.selectMatch(match)
+                                navController.navigate("details")
+                            }
+                        )
                     }
                 }
             }
