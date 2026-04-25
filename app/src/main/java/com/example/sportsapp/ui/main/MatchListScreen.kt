@@ -4,9 +4,6 @@ import androidx.compose.runtime.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material3.*
 import androidx.navigation.NavController
-import android.util.Log
-import com.example.sportsapp.data.Match
-import com.example.sportsapp.network.RetrofitInstance
 import com.example.sportsapp.viewmodel.MatchViewModel
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Alignment
@@ -14,14 +11,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.sportsapp.database.AppDatabase
 import com.google.accompanist.swiperefresh.*
 
 @Composable
 fun MatchListScreen(
     navController: NavController,
-    viewModel: MatchViewModel,
-    db: AppDatabase
+    viewModel: MatchViewModel
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -29,10 +24,10 @@ fun MatchListScreen(
         it.strEvent?.contains(searchQuery, ignoreCase = true) == true
     }
 
-    val matches = viewModel.matches.value
-
     LaunchedEffect(Unit) {
-        viewModel.fetchMatches()
+        if (viewModel.matches.value.isEmpty()) {
+            viewModel.fetchMatches()
+        }
     }
 
 
@@ -88,7 +83,7 @@ fun MatchListScreen(
                             match = match,
                             isFavorite = viewModel.isFavorite(match),
                             onFavoriteClick = {
-                                viewModel.toggleFavorite(match, db)
+                                viewModel.toggleFavorite(match)
                             },
                             onClick = {
                                 viewModel.selectMatch(match)

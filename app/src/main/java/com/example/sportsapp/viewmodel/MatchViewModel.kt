@@ -4,12 +4,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.sportsapp.data.Match
 import androidx.lifecycle.viewModelScope
-import com.example.sportsapp.database.AppDatabase
-import com.example.sportsapp.database.FavoriteMatch
 import kotlinx.coroutines.launch
-import com.example.sportsapp.network.RetrofitInstance
+import com.example.sportsapp.repository.MatchRepository
 
-class MatchViewModel : ViewModel() {
+class MatchViewModel(
+    private val repository: MatchRepository
+) : ViewModel() {
 
     var favorites = mutableStateOf<Set<String>>(emptySet())
 
@@ -26,8 +26,7 @@ class MatchViewModel : ViewModel() {
     }
 
     fun toggleFavorite(
-        match: Match,
-        db: AppDatabase
+        match: Match
     ) {
 
         val id = match.idEvent ?: return
@@ -39,24 +38,14 @@ class MatchViewModel : ViewModel() {
                 favorites.value =
                     favorites.value - id
 
-                db.favoriteDao().deleteFavorite(
-                    FavoriteMatch(
-                        eventId = id,
-                        eventName = match.strEvent ?: ""
-                    )
-                )
+                repository.deleteFavorite(match)
 
             } else {
 
                 favorites.value =
                     favorites.value + id
 
-                db.favoriteDao().insertFavorite(
-                    FavoriteMatch(
-                        eventId = id,
-                        eventName = match.strEvent ?: ""
-                    )
-                )
+                repository.insertFavorite(match)
 
             }
 
@@ -69,34 +58,47 @@ class MatchViewModel : ViewModel() {
     }
 
     fun fetchMatches() {
+
         viewModelScope.launch {
 
             isLoading.value = true
             errorMessage.value = null
 
             try {
-                val response = RetrofitInstance.api.getMatches()
+
+                val response =
+                    repository.fetchMatches()
 
                 if (response.isSuccessful) {
-                    matches.value = response.body()?.events ?: emptyList()
+
+                    matches.value =
+                        response.body()?.events ?: emptyList()
+
                 } else {
-                    errorMessage.value = "Failed: ${response.code()}"
+
+                    errorMessage.value =
+                        "Failed: ${response.code()}"
                 }
 
             } catch (e: Exception) {
-                errorMessage.value = "Network error"
+
+                errorMessage.value =
+                    "Network error"
+
             }
 
-            isLoading.value = false
+            finally {
+                isLoading.value = false
+            }
         }
     }
 
-    fun loadFavorites(db: AppDatabase) {
+    fun loadFavorites() {
 
         viewModelScope.launch {
 
             val savedFavorites =
-                db.favoriteDao().getFavorites()
+                repository.getFavorites()
 
             favorites.value =
                 savedFavorites.map {
@@ -104,5 +106,6 @@ class MatchViewModel : ViewModel() {
                 }.toSet()
 
         }
+
     }
 }

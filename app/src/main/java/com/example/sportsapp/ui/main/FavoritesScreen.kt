@@ -8,14 +8,12 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.example.sportsapp.database.AppDatabase
 import com.example.sportsapp.viewmodel.MatchViewModel
 
 @Composable
 fun FavoritesScreen(
     navController: NavController,
-    viewModel: MatchViewModel,
-    db: AppDatabase
+    viewModel: MatchViewModel
 ) {
 
     val favoriteMatches = viewModel.matches.value.filter { match ->
@@ -43,7 +41,7 @@ fun FavoritesScreen(
                     isFavorite = true,
 
                     onFavoriteClick = {
-                        viewModel.toggleFavorite(match, db)
+                        viewModel.toggleFavorite(match)
                     },
 
                     onClick = {
