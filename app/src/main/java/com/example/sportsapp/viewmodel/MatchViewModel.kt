@@ -4,6 +4,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.sportsapp.data.Match
 import androidx.lifecycle.viewModelScope
+import com.example.sportsapp.database.AppDatabase
+import com.example.sportsapp.database.FavoriteMatch
 import kotlinx.coroutines.launch
 import com.example.sportsapp.network.RetrofitInstance
 
@@ -23,20 +25,47 @@ class MatchViewModel : ViewModel() {
         selectedMatch.value = match
     }
 
-    fun toggleFavorite(match: Match) {
+    fun toggleFavorite(
+        match: Match,
+        db: AppDatabase
+    ) {
 
         val id = match.idEvent ?: return
 
-        favorites.value =
+        viewModelScope.launch {
+
             if (favorites.value.contains(id)) {
-                favorites.value - id
+
+                favorites.value =
+                    favorites.value - id
+
+                db.favoriteDao().deleteFavorite(
+                    FavoriteMatch(
+                        eventId = id,
+                        eventName = match.strEvent ?: ""
+                    )
+                )
+
             } else {
-                favorites.value + id
+
+                favorites.value =
+                    favorites.value + id
+
+                db.favoriteDao().insertFavorite(
+                    FavoriteMatch(
+                        eventId = id,
+                        eventName = match.strEvent ?: ""
+                    )
+                )
+
             }
+
+        }
     }
 
     fun isFavorite(match: Match): Boolean {
-        return favorites.value.contains(match.idEvent)
+        val id = match.idEvent ?: return false
+        return favorites.value.contains(id) //To prevent null issues
     }
 
     fun fetchMatches() {
@@ -59,6 +88,21 @@ class MatchViewModel : ViewModel() {
             }
 
             isLoading.value = false
+        }
+    }
+
+    fun loadFavorites(db: AppDatabase) {
+
+        viewModelScope.launch {
+
+            val savedFavorites =
+                db.favoriteDao().getFavorites()
+
+            favorites.value =
+                savedFavorites.map {
+                    it.eventId
+                }.toSet()
+
         }
     }
 }

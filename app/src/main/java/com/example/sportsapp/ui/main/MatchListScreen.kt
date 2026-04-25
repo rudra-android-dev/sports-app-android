@@ -14,12 +14,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.sportsapp.database.AppDatabase
 import com.google.accompanist.swiperefresh.*
 
 @Composable
 fun MatchListScreen(
     navController: NavController,
-    viewModel: MatchViewModel
+    viewModel: MatchViewModel,
+    db: AppDatabase
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -86,7 +88,7 @@ fun MatchListScreen(
                             match = match,
                             isFavorite = viewModel.isFavorite(match),
                             onFavoriteClick = {
-                                viewModel.toggleFavorite(match)
+                                viewModel.toggleFavorite(match, db)
                             },
                             onClick = {
                                 viewModel.selectMatch(match)

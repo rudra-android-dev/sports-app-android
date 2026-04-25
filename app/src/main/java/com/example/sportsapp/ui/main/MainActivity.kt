@@ -50,6 +50,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
+import androidx.room.Room
+import com.example.sportsapp.database.AppDatabase
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,13 +61,27 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val viewModel: MatchViewModel = viewModel()
 
+            val db = Room.databaseBuilder(
+                applicationContext,
+                AppDatabase::class.java,
+                "sports_db"
+            ).build()
+
+            LaunchedEffect(Unit) {
+                viewModel.loadFavorites(db)
+            }
+
             NavHost(
                 navController = navController,
                 startDestination = "home"
             ) {
 
                 composable("home") {
-                    MatchListScreen(navController, viewModel)
+                    MatchListScreen(
+                        navController,
+                        viewModel,
+                        db
+                    )
                 }
 
                 composable("details") { backStackEntry ->
@@ -73,7 +89,11 @@ class MainActivity : ComponentActivity() {
                     MatchDetailScreen(viewModel)
                 }
                 composable("favorites") {
-                    FavoritesScreen(navController, viewModel)
+                    FavoritesScreen(
+                        navController,
+                        viewModel,
+                        db
+                    )
                 }
             }
         }
