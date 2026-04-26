@@ -39,6 +39,14 @@ import androidx.compose.material.icons.outlined.StarBorder
 import androidx.room.Room
 import com.example.sportsapp.database.AppDatabase
 import com.example.sportsapp.repository.MatchRepository
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.filled.Notifications
+import com.example.sportsapp.notifications.NotificationHelper
+import com.example.sportsapp.notifications.ReminderReceiver
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +70,11 @@ class MainActivity : ComponentActivity() {
             }
 
             LaunchedEffect(Unit) {
+
+                NotificationHelper.createChannel(
+                    applicationContext
+                )
+
                 viewModel.loadFavorites()
             }
 
@@ -98,6 +111,35 @@ fun MatchItem(
     onFavoriteClick: () -> Unit,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
+
+    fun scheduleReminder() {
+
+        val intent = Intent(
+            context,
+            ReminderReceiver::class.java
+        )
+
+        val pendingIntent =
+            PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or
+                        PendingIntent.FLAG_IMMUTABLE
+            )
+
+        val alarmManager =
+            context.getSystemService(
+                Context.ALARM_SERVICE
+            ) as AlarmManager
+
+        alarmManager.set(
+            AlarmManager.RTC_WAKEUP,
+            System.currentTimeMillis() + 30000,
+            pendingIntent
+        )
+    }
 
     Card(
         modifier = Modifier
@@ -163,6 +205,17 @@ fun MatchItem(
                             contentDescription = "Not Favorite"
                         )
                     }
+                }
+
+                IconButton(
+                    onClick = {
+                        scheduleReminder()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Reminder"
+                    )
                 }
             }
 
