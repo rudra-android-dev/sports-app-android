@@ -12,6 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.*
+import kotlinx.coroutines.launch
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 
 @Composable
 fun MatchListScreen(
@@ -19,6 +23,14 @@ fun MatchListScreen(
     viewModel: MatchViewModel
 ) {
     var searchQuery by remember { mutableStateOf("") }
+
+    val snackbarHostState =
+        remember {
+            SnackbarHostState()
+        }
+
+    val scope =
+        rememberCoroutineScope()
 
     val filteredMatches = viewModel.matches.value.filter {
         it.strEvent?.contains(searchQuery, ignoreCase = true) == true
@@ -31,70 +43,98 @@ fun MatchListScreen(
     }
 
 
-    Column {
-
-        TextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            placeholder = { Text("Search matches...") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-
-        Button(
-            onClick = {
-                navController.navigate("favorites")
-            }
-        ) {
-            Text("Favorites")
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState
+            )
         }
+    ) { paddingValues ->
 
-        if (viewModel.isLoading.value) {
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+        ) {
 
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search matches...") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
+
+            Button(
+                onClick = {
+                    navController.navigate("favorites")
+                }
             ) {
-                CircularProgressIndicator()
+                Text("Favorites")
             }
 
-        } else if (viewModel.errorMessage.value != null) {
+            if (viewModel.isLoading.value) {
 
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = viewModel.errorMessage.value ?: "",
-                    color = Color.Red
-                )
-            }
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
 
-        } else {
+            } else if (viewModel.errorMessage.value != null) {
 
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(viewModel.isLoading.value),
-                onRefresh = { viewModel.fetchMatches() }
-            ) {
-                LazyColumn {
-                    items(filteredMatches) { match ->
-                        MatchItem(
-                            match = match,
-                            isFavorite = viewModel.isFavorite(match),
-                            onFavoriteClick = {
-                                viewModel.toggleFavorite(match)
-                            },
-                            onClick = {
-                                viewModel.selectMatch(match)
-                                navController.navigate("details")
-                            }
-                        )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = viewModel.errorMessage.value ?: "",
+                        color = Color.Red
+                    )
+                }
+
+            } else {
+
+                SwipeRefresh(
+                    state = rememberSwipeRefreshState(viewModel.isLoading.value),
+                    onRefresh = { viewModel.fetchMatches() }
+                ) {
+                    LazyColumn {
+                        items(filteredMatches) { match ->
+                            MatchItem(
+                                match = match,
+
+                                isFavorite =
+                                    viewModel.isFavorite(match),
+
+                                onFavoriteClick = {
+                                    viewModel.toggleFavorite(match)
+                                },
+
+                                onReminderScheduled = {
+
+                                    scope.launch {
+
+                                        snackbarHostState.showSnackbar(
+                                            "Reminder scheduled"
+                                        )
+
+                                    }
+
+                                },
+
+                                onClick = {
+                                    viewModel.selectMatch(match)
+                                    navController.navigate("details")
+                                }
+                            )
+                        }
                     }
                 }
-            }
 
+            }
         }
     }
-    }
+}
 

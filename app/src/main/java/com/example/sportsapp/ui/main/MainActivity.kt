@@ -109,8 +109,9 @@ fun MatchItem(
     match: Match,
     isFavorite: Boolean,
     onFavoriteClick: () -> Unit,
+    onReminderScheduled: () -> Unit,
     onClick: () -> Unit
-) {
+){
     val context = LocalContext.current
 
     fun scheduleReminder() {
@@ -209,7 +210,11 @@ fun MatchItem(
 
                 IconButton(
                     onClick = {
+
                         scheduleReminder()
+
+                        onReminderScheduled()
+
                     }
                 ) {
                     Icon(

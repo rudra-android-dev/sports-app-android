@@ -44,6 +44,8 @@ fun FavoritesScreen(
                         viewModel.toggleFavorite(match)
                     },
 
+                    onReminderScheduled = { },
+
                     onClick = {
                         viewModel.selectMatch(match)
                         navController.navigate("details")
