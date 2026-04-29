@@ -18,9 +18,20 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+
+    primary = SportsBlue,
+
+    onPrimary = CardSurface,
+
+    secondary = SportsAccent,
+
+    background = AppBackground,
+
+    surface = CardSurface,
+
+    onBackground = TextPrimary,
+
+    onSurface = TextPrimary
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

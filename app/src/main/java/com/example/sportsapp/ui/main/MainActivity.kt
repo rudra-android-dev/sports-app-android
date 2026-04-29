@@ -48,6 +48,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.filled.Notifications
 import com.example.sportsapp.notifications.NotificationHelper
 import com.example.sportsapp.notifications.ReminderReceiver
+import com.example.sportsapp.ui.theme.CardSurface
+import com.example.sportsapp.ui.theme.SportsAccent
+import com.example.sportsapp.ui.theme.SportsBlue
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -149,6 +152,10 @@ fun MatchItem(
             .padding(horizontal = 12.dp, vertical = 8.dp)
             .clickable { onClick() },
 
+        colors = CardDefaults.cardColors(
+            containerColor = CardSurface
+        ),
+
         shape = RoundedCornerShape(22.dp),
 
         elevation = CardDefaults.cardElevation(
@@ -249,7 +256,8 @@ fun MatchItem(
                     if (isFavorite) {
                         Icon(
                             imageVector = Icons.Filled.Star,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = SportsAccent
                         )
                     } else {
                         Icon(
@@ -267,9 +275,9 @@ fun MatchItem(
                     }
                 ) {
                     Icon(
-                        imageVector =
-                            Icons.Default.Notifications,
-                        contentDescription = null
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = null,
+                        tint = SportsBlue
                     )
                 }
 

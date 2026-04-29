@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun MatchListScreen(
@@ -58,7 +59,8 @@ fun MatchListScreen(
 
             Text(
                 text = "Upcoming Matches",
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp)
             )
 
