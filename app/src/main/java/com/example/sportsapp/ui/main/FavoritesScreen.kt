@@ -61,6 +61,14 @@ fun FavoritesScreen(
 
     } else {
 
+        Column {
+
+            Text(
+                text = "Favorite Matches",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(16.dp)
+            )
+
         LazyColumn {
 
             items(favoriteMatches) { match ->
@@ -84,6 +92,7 @@ fun FavoritesScreen(
             }
 
         }
+    }
 
     }
 }

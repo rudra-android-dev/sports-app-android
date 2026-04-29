@@ -1,11 +1,13 @@
 package com.example.sportsapp.ui.main
 
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material3.*
 import androidx.navigation.NavController
 import com.example.sportsapp.viewmodel.MatchViewModel
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.Modifier
@@ -83,14 +85,37 @@ fun MatchListScreen(
                 modifier = Modifier.height(12.dp)
             )
 
-            Button(
-                onClick = {
-                    navController.navigate("favorites")
-                },
+            Card(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = 12.dp)
+                    .clickable {
+                        navController.navigate("favorites") {
+                            launchSingleTop = true
+                        }
+                    },
+                shape = RoundedCornerShape(18.dp),
+                elevation = CardDefaults.cardElevation(6.dp)
             ) {
-                Text("View Favorites")
+
+                Row(
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween,
+                    verticalAlignment =
+                        Alignment.CenterVertically
+                ) {
+
+                    Text(
+                        text = "⭐ View Favorites",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Text("→")
+                }
+
             }
 
             if (viewModel.isLoading.value) {
