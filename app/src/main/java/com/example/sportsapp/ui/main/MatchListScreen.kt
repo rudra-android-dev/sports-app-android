@@ -56,21 +56,39 @@ fun MatchListScreen(
                 .padding(paddingValues)
         ) {
 
+            Text(
+                text = "Upcoming Matches",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(16.dp)
+            )
+
             TextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = { Text("Search matches...") },
+                onValueChange = {
+                    searchQuery = it
+                },
+
+                placeholder = {
+                    Text("Search matches")
+                },
+
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(horizontal = 12.dp)
+            )
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
             )
 
             Button(
                 onClick = {
                     navController.navigate("favorites")
-                }
+                },
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
             ) {
-                Text("Favorites")
+                Text("View Favorites")
             }
 
             if (viewModel.isLoading.value) {

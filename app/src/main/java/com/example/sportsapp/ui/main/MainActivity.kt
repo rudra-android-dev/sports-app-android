@@ -43,6 +43,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.filled.Notifications
 import com.example.sportsapp.notifications.NotificationHelper
@@ -145,50 +146,101 @@ fun MatchItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 6.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
             .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(6.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
 
+        shape = RoundedCornerShape(22.dp),
+
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 10.dp
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+
+            // HOME TEAM
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // Left side: Home team
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    AsyncImage(
-                        model = match.strHomeTeamBadge,
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(match.strHomeTeam ?: "Team A")
-                }
-
-                // Center: VS
-                Text(
-                    text = "VS",
-                    fontWeight = FontWeight.Bold
+                AsyncImage(
+                    model = match.strHomeTeamBadge,
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp)
                 )
 
-                // Right side: Away team
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(match.strAwayTeam ?: "Team B")
+                Spacer(
+                    modifier = Modifier.width(12.dp)
+                )
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = match.strHomeTeam ?: "Team A",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
 
-                    AsyncImage(
-                        model = match.strAwayTeamBadge,
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
+            Spacer(
+                modifier = Modifier.height(14.dp)
+            )
+
+            // VS
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "VS",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(
+                modifier = Modifier.height(14.dp)
+            )
+
+            // AWAY TEAM
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                AsyncImage(
+                    model = match.strAwayTeamBadge,
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier.width(12.dp)
+                )
+
+                Text(
+                    text = match.strAwayTeam ?: "Team B",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+
+            Spacer(
+                modifier = Modifier.height(18.dp)
+            )
+
+            Text(
+                text = match.dateEvent ?: "",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(
+                modifier = Modifier.height(14.dp)
+            )
+
+            // ACTION ROW
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement =
+                    Arrangement.End
+            ) {
+
                 IconButton(
                     onClick = {
                         onFavoriteClick()
@@ -197,39 +249,32 @@ fun MatchItem(
                     if (isFavorite) {
                         Icon(
                             imageVector = Icons.Filled.Star,
-                            contentDescription = "Favorite",
-                            tint = MaterialTheme.colorScheme.primary
+                            contentDescription = null
                         )
                     } else {
                         Icon(
-                            imageVector = Icons.Outlined.StarBorder,
-                            contentDescription = "Not Favorite"
+                            imageVector =
+                                Icons.Outlined.StarBorder,
+                            contentDescription = null
                         )
                     }
                 }
 
                 IconButton(
                     onClick = {
-
                         scheduleReminder()
-
                         onReminderScheduled()
-
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Reminder"
+                        imageVector =
+                            Icons.Default.Notifications,
+                        contentDescription = null
                     )
                 }
+
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = match.dateEvent ?: "",
-                style = MaterialTheme.typography.bodyMedium
-            )
         }
     }
 }
