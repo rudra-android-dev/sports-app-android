@@ -1,108 +1,82 @@
 package com.example.sportsapp.ui.main
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
-import com.example.sportsapp.data.Match
-import androidx.navigation.compose.*
-import coil.compose.AsyncImage
-import com.example.sportsapp.viewmodel.MatchViewModel
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.StarBorder
-import androidx.room.Room
-import com.example.sportsapp.database.AppDatabase
-import com.example.sportsapp.repository.MatchRepository
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.ui.platform.LocalContext
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.*
+import androidx.room.Room
+import coil.compose.AsyncImage
+import com.example.sportsapp.data.Match
+import com.example.sportsapp.database.AppDatabase
 import com.example.sportsapp.notifications.NotificationHelper
 import com.example.sportsapp.notifications.ReminderReceiver
-import com.example.sportsapp.ui.theme.CardSurface
+import com.example.sportsapp.repository.MatchRepository
 import com.example.sportsapp.ui.theme.SportsAccent
-import com.example.sportsapp.ui.theme.SportsBlue
+import com.example.sportsapp.ui.theme.SportsAppTheme
+import com.example.sportsapp.viewmodel.MatchViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val navController = rememberNavController()
+            SportsAppTheme {
+                val navController = rememberNavController()
 
-            val db = Room.databaseBuilder(
-                applicationContext,
-                AppDatabase::class.java,
-                "sports_db"
-            ).build()
+                val db = Room.databaseBuilder(
+                    applicationContext,
+                    AppDatabase::class.java,
+                    "sports_db"
+                ).build()
 
-            val repository = remember {
-                MatchRepository(db)
-            }
+                val repository = remember { MatchRepository(db) }
+                val viewModel  = remember { MatchViewModel(repository) }
 
-            val viewModel = remember {
-                MatchViewModel(repository)
-            }
-
-            LaunchedEffect(Unit) {
-
-                NotificationHelper.createChannel(
-                    applicationContext
-                )
-
-                viewModel.loadFavorites()
-            }
-
-            NavHost(
-                navController = navController,
-                startDestination = "home"
-            ) {
-
-                composable("home") {
-                    MatchListScreen(
-                        navController,
-                        viewModel
-                    )
+                LaunchedEffect(Unit) {
+                    NotificationHelper.createChannel(applicationContext)
+                    viewModel.loadFavorites()
                 }
 
-                composable("details") { backStackEntry ->
-                    val match = backStackEntry.arguments?.getString("match")
-                    MatchDetailScreen(viewModel)
-                }
-                composable("favorites") {
-                    FavoritesScreen(
-                        navController,
-                        viewModel
-                    )
+                NavHost(
+                    navController    = navController,
+                    startDestination = "home"
+                ) {
+                    composable("home") {
+                        MatchListScreen(navController, viewModel)
+                    }
+                    composable("details") {
+                        MatchDetailScreen(viewModel)
+                    }
+                    composable("favorites") {
+                        FavoritesScreen(navController, viewModel)
+                    }
                 }
             }
         }
@@ -115,33 +89,19 @@ fun MatchItem(
     onFavoriteClick: () -> Unit,
     onReminderScheduled: () -> Unit,
     onClick: () -> Unit
-){
+) {
     val context = LocalContext.current
 
     fun scheduleReminder() {
-
-        val intent = Intent(
-            context,
-            ReminderReceiver::class.java
+        val intent = Intent(context, ReminderReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, 0, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-
-        val pendingIntent =
-            PendingIntent.getBroadcast(
-                context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or
-                        PendingIntent.FLAG_IMMUTABLE
-            )
-
-        val alarmManager =
-            context.getSystemService(
-                Context.ALARM_SERVICE
-            ) as AlarmManager
-
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.set(
             AlarmManager.RTC_WAKEUP,
-            System.currentTimeMillis() + 30000,
+            System.currentTimeMillis() + 30_000,
             pendingIntent
         )
     }
@@ -149,125 +109,75 @@ fun MatchItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 7.dp)
             .clickable { onClick() },
-
-        colors = CardDefaults.cardColors(
-            containerColor = CardSurface
+        shape     = RoundedCornerShape(20.dp),
+        colors    = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-
-        shape = RoundedCornerShape(22.dp),
-
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-
-            // HOME TEAM
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                AsyncImage(
-                    model = match.strHomeTeamBadge,
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp)
-                )
-
-                Spacer(
-                    modifier = Modifier.width(12.dp)
-                )
-
-                Text(
-                    text = match.strHomeTeam ?: "Team A",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(14.dp)
-            )
-
-            // VS
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "VS",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(14.dp)
-            )
-
-            // AWAY TEAM
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                AsyncImage(
-                    model = match.strAwayTeamBadge,
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp)
-                )
-
-                Spacer(
-                    modifier = Modifier.width(12.dp)
-                )
-
-                Text(
-                    text = match.strAwayTeam ?: "Team B",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(18.dp)
-            )
-
-            Text(
-                text = match.dateEvent ?: "",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(
-                modifier = Modifier.height(14.dp)
-            )
-
-            // ACTION ROW
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement =
-                    Arrangement.End
-            ) {
-
-                IconButton(
-                    onClick = {
-                        onFavoriteClick()
-                    }
+        Column(modifier = Modifier.padding(16.dp)) {
+            if (!match.dateEvent.isNullOrEmpty()) {
+                Surface(
+                    color  = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                    shape  = RoundedCornerShape(8.dp)
                 ) {
-                    if (isFavorite) {
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = null,
-                            tint = SportsAccent
-                        )
-                    } else {
-                        Icon(
-                            imageVector =
-                                Icons.Outlined.StarBorder,
-                            contentDescription = null
-                        )
-                    }
+                    Text(
+                        text     = match.dateEvent,
+                        style    = MaterialTheme.typography.labelSmall,
+                        color    = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            Row(
+                modifier            = Modifier.fillMaxWidth(),
+                verticalAlignment   = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TeamColumn(
+                    badgeUrl = match.strHomeTeamBadge,
+                    name     = match.strHomeTeam ?: "Home",
+                    modifier = Modifier.weight(1f)
+                )
+                Box(
+                    modifier          = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment  = Alignment.Center
+                ) {
+                    Text(
+                        text      = "VS",
+                        style     = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        color     = MaterialTheme.colorScheme.onPrimary,
+                        fontSize  = 11.sp
+                    )
                 }
 
+                TeamColumn(
+                    badgeUrl = match.strAwayTeamBadge,
+                    name     = match.strAwayTeam ?: "Away",
+                    modifier = Modifier.weight(1f),
+                    alignEnd = true
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                thickness = 1.dp
+            )
+
+            Row(
+                modifier              = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment     = Alignment.CenterVertically
+            ) {
                 IconButton(
                     onClick = {
                         scheduleReminder()
@@ -275,14 +185,51 @@ fun MatchItem(
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = null,
-                        tint = SportsBlue
+                        imageVector        = Icons.Default.Notifications,
+                        contentDescription = "Set reminder",
+                        tint               = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
+                IconButton(onClick = onFavoriteClick) {
+                    Icon(
+                        imageVector        = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                        contentDescription = if (isFavorite) "Remove from favourites" else "Add to favourites",
+                        tint               = if (isFavorite) SportsAccent else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
-
         }
+    }
+}
+
+@Composable
+private fun TeamColumn(
+    badgeUrl : String?,
+    name     : String,
+    modifier : Modifier = Modifier,
+    alignEnd : Boolean  = false
+) {
+    Column(
+        modifier            = modifier,
+        horizontalAlignment = if (alignEnd) Alignment.End else Alignment.Start
+    ) {
+        AsyncImage(
+            model              = badgeUrl,
+            contentDescription = name,
+            modifier           = Modifier
+                .size(52.dp)
+                .align(if (alignEnd) Alignment.End else Alignment.Start)
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text      = name,
+            style     = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            maxLines  = 2,
+            overflow  = TextOverflow.Ellipsis,
+            textAlign = if (alignEnd) TextAlign.End else TextAlign.Start,
+            color     = MaterialTheme.colorScheme.onSurface
+        )
     }
 }

@@ -20,7 +20,7 @@ class ReminderReceiver : BroadcastReceiver() {
                 NotificationHelper.CHANNEL_ID
             )
                 .setSmallIcon(
-                    R.mipmap.ic_launcher
+                    R.drawable.ic_notification
                 )
                 .setContentTitle(
                     "Match Reminder"
