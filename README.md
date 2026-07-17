@@ -3,7 +3,12 @@
 An Android app for tracking upcoming Premier League fixtures, built with
 Kotlin and Jetpack Compose following MVVM architecture.
 
-## Screenshots
+## 📸 Screenshots
+
+| Favorites Screen | Details Screen | Match Screen |
+|-----------|---------|---------|
+| <img src="screenshots/fav.jpeg" width="300"> | <img src="screenshots/detail.jpeg" width="300"> | <img src="screenshots/match.jpeg" width="300"> |
+
 
 
 
